@@ -20,7 +20,6 @@ export class HotelsService {
     @InjectModel(Hotel.name) private HotelModel: Model<HotelDocument>,
   ) {}
 
-  //=============================================================
   public async findAll(params: any): Promise<HotelDocument[]> {
     const { offset, limit, search } = params;
     const qOffset = Number(offset);
@@ -33,12 +32,10 @@ export class HotelsService {
       .exec();
   }
 
-  //=============================================================
   public async hotelById(id: string): Promise<HotelDocument> {
     return this.HotelModel.findById(id).exec();
   }
 
-  //=============================================================
   public async create(
     files: any[],
     body: INewHotelBodyDto,
@@ -59,7 +56,6 @@ export class HotelsService {
     return this.HotelModel.create(newHotel);
   }
 
-  //=======================================
   public async update(
     id: string,
     files: any[],
@@ -80,17 +76,14 @@ export class HotelsService {
     return this.HotelModel.findOneAndUpdate({ _id: id }, newHotel, { new: true });
   }
 
-  //=============================================================
   public async delete(id: string): Promise<HotelDocument> {
     return this.HotelModel.findOneAndDelete({ _id: id });
   }
 
-  //=============================================================
   private getPicsFolderPath(): string {
     return join(__dirname, '..', '..', PICS_FOLDER);
   }
 
-  //=============================================================
   private async ensureFolderExists(folder: string): Promise<void> {
     try {
       await access(folder);
@@ -99,7 +92,6 @@ export class HotelsService {
     }
   }
 
-  //=============================================================
   private async processFiles(files: any[], folder: string): Promise<any[]> {
     return Promise.all(
       files.map(async (file) => {
@@ -130,7 +122,6 @@ export class HotelsService {
     ).then(files => files.filter(file => file !== null));
   }
 
-  //=============================================================
   private isFileValid(file: any, fileExtension: string): boolean {
     return file.mimetype.includes('image') && ALLOWED_FILE_TYPES.includes(fileExtension);
   }

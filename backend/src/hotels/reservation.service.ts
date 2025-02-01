@@ -11,10 +11,9 @@ import { ICreateReservationDto } from './interfaces/dto/create-reservation';
 export class ReservationService {
   constructor(
     @InjectModel(Reservation.name)
-    private ReservationModel: Model<ReservationDocument>, // private readonly hotelService: HotelsService,
+    private ReservationModel: Model<ReservationDocument>,
   ) {}
 
-  //=======================================
   public async findByUserId(params): Promise<ReservationDocument[]> {
     const { userid } = params;
     return await this.ReservationModel.find({ userId: userid })
@@ -24,7 +23,6 @@ export class ReservationService {
       .exec();
   }
 
-  //=======================================
   public async create(
     body: ICreateReservationDto,
   ): Promise<ReservationDocument> {
@@ -32,7 +30,6 @@ export class ReservationService {
     return newReservation;
   }
 
-  //=======================================
   public async delete(id: string): Promise<ReservationDocument> {
     const delReservation = await this.ReservationModel.findOneAndDelete({
       _id: id,
