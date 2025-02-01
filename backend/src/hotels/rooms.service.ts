@@ -9,9 +9,6 @@ import { INewRoomBodyDto } from './interfaces/dto/new-room-body';
 import { HotelsService } from './hotels.service';
 import { IUpdateRoomBodyDto } from './interfaces/dto/update-room';
 
-const PICS_FOLDER = '/public/rooms';
-const ALLOWED_IMAGE_TYPES = ['png', 'jpg', 'jpeg', 'webp'];
-
 @Injectable()
 export class RoomsService {
   constructor(
@@ -34,70 +31,107 @@ export class RoomsService {
     return this.RoomModel.findById(id).exec();
   }
 
-  private async ensureFolderExists(folderPath: string): Promise<void> {
-    try {
-      await access(folderPath);
-    } catch (e) {
-      await mkdir(folderPath, { recursive: true });
-    }
-  }
-
-  private async handleFileUpload(file: any, folderPath: string): Promise<{ url: string; name: string } | null> {
-    const fileExtension = file.originalname.split('.')[1];
-    if (!file.mimetype.includes('image') || !ALLOWED_IMAGE_TYPES.includes(fileExtension)) {
-      console.log(`Файл ${file.originalname} не является изображением или имеет недопустимый формат`);
-      return null;
-    }
-
-    const newFileName = `onserv-${uuidv4()}.${fileExtension}`;
-    try {
-      await writeFile(join(folderPath, newFileName), file.buffer);
-      return {
-        url: `${PICS_FOLDER}/${newFileName}`,
-        name: newFileName,
-      };
-    } catch (error) {
-      console.log('ERROR WRITE files', error.message);
-      return null;
-    }
-  }
-
   public async create(files: any[], body: INewRoomBodyDto): Promise<RoomDocument> {
-    const folderPath = join(__dirname, '..', '..', PICS_FOLDER);
-    await this.ensureFolderExists(folderPath);
+    const picsFolder = '/public/rooms';
+    const folder = join(__dirname, '..', '..', picsFolder);
+
+    try {
+      await access(folder);
+    } catch (e) {
+      await mkdir(folder, { recursive: true });
+    }
 
     const resWriteFiles = await Promise.all(
-      files.map((file) => this.handleFileUpload(file, folderPath)),
+      files.map(async (file) => {
+        const fileExtension = file.originalname.split('.')[1];
+        if (
+          !file.mimetype.includes('image') ||
+          !['png', 'jpg', 'jpeg', 'webp'].includes(fileExtension)
+        ) {
+          console.log(
+            `Файл ${file.originalname} не является изображением или имеет недопустимый формат`,
+          );
+          return;
+        }
+
+        const newFileName = `onserv-${uuidv4()}.${fileExtension}`;
+        try {
+          await writeFile(join(folder, newFileName), file.buffer);
+        } catch (error) {
+          console.log('Ошибка при записи файла:', error.message);
+        }
+
+        return {
+          url: `${picsFolder}/${newFileName}`,
+          name: newFileName,
+        };
+      }),
     );
 
-    const newHotel = {
+    const newRoom = {
       hotel: body.hotelId,
       title: body.title,
       description: body.description,
       createdAt: new Date(),
       updatedAt: new Date(),
       isAnable: body.isAnable,
-      images: JSON.stringify(resWriteFiles.filter(Boolean)),
+      images: JSON.stringify(resWriteFiles),
     };
 
-    return this.RoomModel.create(newHotel);
+    return this.RoomModel.create(newRoom);
   }
 
   public async update(id: string, files: any[], body: IUpdateRoomBodyDto): Promise<RoomDocument> {
-    const folderPath = join(__dirname, '..', '..', PICS_FOLDER);
-    await this.ensureFolderExists(folderPath);
+    const picsFolder = '/public/rooms';
+    const folder = join(__dirname, '..', '..', picsFolder);
+
+    try {
+      await access(folder);
+    } catch (e) {
+      await mkdir(folder, { recursive: true });
+    }
 
     const resWriteFiles = await Promise.all(
-      files.map((file) => this.handleFileUpload(file, folderPath)),
+      files.map(async (file) => {
+        const fileExtension = file.originalname.split('.')[1];
+        const fileName = file.originalname.split('.')[0];
+        let newFileName: string;
+
+        if (fileName.slice(0, 6) === 'onserv') {
+          newFileName = file.originalname;
+        } else {
+          if (
+            !file.mimetype.includes('image') ||
+            !['png', 'jpg', 'jpeg', 'webp'].includes(fileExtension)
+          ) {
+            console.log(
+              `Файл ${file.originalname} не является изображением или имеет недопустимый формат`,
+            );
+            return;
+          }
+
+          newFileName = `onserv-${uuidv4()}.${fileExtension}`;
+          try {
+            await writeFile(join(folder, newFileName), file.buffer);
+          } catch (error) {
+            console.log('Ошибка при записи файла:', error.message);
+          }
+        }
+
+        return {
+          url: `${picsFolder}/${newFileName}`,
+          name: newFileName,
+        };
+      }),
     );
 
     const newRoom = {
       title: body.title,
       description: body.description,
       updatedAt: new Date(),
-      images: JSON.stringify(resWriteFiles.filter(Boolean)),
+      images: JSON.stringify(resWriteFiles),
     };
 
-    return this.RoomModel.findOneAndUpdate({ _id: id }, newRoom, { new: true }).exec();
+    return this.RoomModel.findOneAndUpdate({ _id: id }, newRoom);
   }
 }
