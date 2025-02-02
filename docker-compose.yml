@@ -1,0 +1,53 @@
+services:
+  mongo-server:
+    image: mongodb/mongodb-community-server
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./docker/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  mongo-admin-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo-server:27017/
+    depends_on:
+      - mongo-server
+  
+  backend:
+    image: node:20.16-alpine
+    volumes:
+      - ./backend:/app
+    working_dir: /app
+    environment:
+      - PORT=4000
+      - MONGO_CONNECTION=mongodb://mongo-server:27017/booking
+      - JWT_SECRET=secret
+    ports:
+      - 4000:4000
+    command: sh -c "npm install && npm run start" 
+    depends_on:
+      - mongo-server
+
+  frontend:
+    image: node:20.16-alpine
+    volumes:
+      - ./frontend:/app
+    working_dir: /app
+    environment:
+      - PORT=3000
+      - REACT_APP_BACK_URL=http://localhost:4000
+      - REACT_APP_POSTFIX_LOGIN=/api/auth/login
+      - REACT_APP_POSTFIX_SIGNUP=/api/auth/signup
+      - REACT_APP_POSTFIX_USERS=/api/admin/users
+      - REACT_APP_POSTFIX_HOTELS=/api/admin/hotels
+      - REACT_APP_POSTFIX_ROOMS=/api/admin/hotel-rooms
+      - REACT_APP_POSTFIX_RESERVATION=/api/client/reservations
+    ports:
+      - 3000:3000
+    command: sh -c "npm install && npm run start" 
+    depends_on:
+      - mongo-server
+      - backend
