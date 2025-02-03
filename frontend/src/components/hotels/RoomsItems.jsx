@@ -5,8 +5,14 @@ import { useSelector } from "react-redux";
 export default function RoomsItems({ item, hotelState }) {
   const { user } = useSelector((state) => state.crUser);
   const navigate = useNavigate();
-  const pics = JSON.parse(item.images);
-  const picsUrl = `url(${process.env.REACT_APP_BACK_URL}${pics[0].url})`;
+
+  // Проверяем, есть ли данные в поле images
+  const pics = item.images ? JSON.parse(item.images) : [];
+  const defaultPicUrl = "/public/rooms/Room.png";
+  const picsUrl = pics.length > 0 
+    ? `url(${process.env.REACT_APP_BACK_URL}${pics[0].url})` 
+    : `url(${process.env.REACT_APP_BACK_URL}${defaultPicUrl})`;
+
   const picStyle = {
     backgroundImage: picsUrl,
     backgroundColor: "#ccc",

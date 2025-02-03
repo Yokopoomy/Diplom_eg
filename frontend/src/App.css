@@ -484,6 +484,7 @@ a {
   object-fit: cover;
   border-radius: 8px;
   margin: 10px 10px 10px 0;
+  background-position: center;
 }
 
 .hotels-item-conteiner {
