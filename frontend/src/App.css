@@ -335,7 +335,7 @@ a {
   text-align: right;
   margin-right: 20px;
   color: #333;
-  width: 120px;
+  width: 20%;
   display: inline-block;
 }
 
@@ -354,7 +354,7 @@ a {
 
 .user-edit-input {
   background-color: #fefee3;
-  width: 300px;
+  width: 60%;
   height: 30px;
   font-size: 16px;
   padding: 8px;
