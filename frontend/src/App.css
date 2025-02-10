@@ -303,6 +303,18 @@ a {
   padding: 10px 20px;
 }
 
+.form-button:hover, .hotels-item-btn:hover, .addhotel-btn.red:hover {
+  background-color: #c24a4c;
+}
+
+.addhotel-btn.green:hover {
+  background-color: #0c7137;
+}
+
+.addhotel-btn.blue:hover {
+  background-color: #3548a9;
+}
+
 .mainpage {
   box-sizing: border-box;
   width: 100%;
