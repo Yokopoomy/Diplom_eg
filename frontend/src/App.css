@@ -286,8 +286,9 @@ a {
   margin: 0 0 20px 0;
   font-size: 18px;
   height: 40px;
-  width: 300px;
+  width: 100%;
   background-color: #fefee3;
+  box-sizing: border-box;
 }
 
 .input-span {

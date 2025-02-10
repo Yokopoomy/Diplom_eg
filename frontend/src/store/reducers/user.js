@@ -55,7 +55,7 @@ export default function reducerUser(state = initialState, action) {
       if (action.payload.access_token) {
         let userError = {
           type: "mess",
-          text: "Усешная регистрация пользователя",
+          text: "Успешная регистрация пользователя",
         };
         const user = localStorage.getItem("user");
         console.log("REDUSER USER ", user);
