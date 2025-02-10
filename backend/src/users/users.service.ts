@@ -43,6 +43,27 @@ export class UsersService {
       contactPhone: data.contactPhone,
       role: data.role,
     };
+
+    // Валидация email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newData.email)) {
+      throw new BadRequestException('Неверный формат E-mail');
+    }
+
+    // Валидация пароля
+    if (password.length < 8) {
+      throw new BadRequestException('Пароль должен содержать минимум 8 символов');
+    }
+
+    // Валидация телефона 
+    if (!/^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/.test(newData.contactPhone)) {
+      throw new BadRequestException('Неверный формат телефона');
+    }
+
+    // Валидация имени
+    if (!/^[A-Za-zА-Яа-я]{3,}$/.test(newData.name) || /\d/.test(newData.name) || /[^A-Za-zА-Яа-я]/.test(newData.name)) {
+      throw new BadRequestException('Имя минимум 3 символа, не содержать цифр или спец символов');
+    }
+
     try {
       const user = await this.UserModel.create(newData);
       return user;

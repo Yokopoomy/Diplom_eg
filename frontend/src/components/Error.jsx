@@ -5,10 +5,11 @@ export default function WinError({ children, type, clearFields }) {
   const dispatch = useDispatch();
 
   const styleMess = {
+    boxSizing: "border-box",
     borderRadius: "5px",
     color: "black",
     fontSize: "20px",
-    width: "93%",
+    width: "100%",
     minHeight: "60px",
     padding: "20px",
     marginBottom: "20px",
@@ -18,7 +19,6 @@ export default function WinError({ children, type, clearFields }) {
 
   const handleClose = () => {
     dispatch(actUserError({ message: "close", statusCode: "" }));
-    clearFields();
   };
 
   return (

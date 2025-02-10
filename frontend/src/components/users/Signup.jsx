@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { actUserError, actUserSignup } from "../../store/actions/actionCreators";
 import { useNavigate } from "react-router-dom";
 import WinError from "../Error";
+import InputMask from "react-input-mask";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -10,6 +11,9 @@ export default function Signup() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [emailStyle, setEmailStyle] = useState({});
+  const [passwordStyle, setPasswordStyle] = useState({});
+  const [phoneStyle, setPhoneStyle] = useState({});
+  const [nameStyle, setNameStyle] = useState({});
   const [role, setRole] = useState("client");
   const { user, userError } = useSelector((state) => state.crUser);
   const dispatch = useDispatch();
@@ -30,6 +34,33 @@ export default function Signup() {
       );
       return;
     }
+    if (!isValidPassword(password)) {
+      dispatch(
+        actUserError({
+          statusCode: 400,
+          message: "Пароль должен содержать минимум 8 символов",
+        })
+      );
+      return;
+    }
+    if (!isValidPhone(phone)) {
+      dispatch(
+        actUserError({
+          statusCode: 400,
+          message: "Неверный формат телефона",
+        })
+      );
+      return;
+    }
+    if (!isValidName(name)) {
+      dispatch(
+        actUserError({
+          statusCode: 400,
+          message: "Минимум 3 символа, только буквы",
+        })
+      );
+      return;
+    }
     const body = { email, passwordHash: password, name, phone, role };
     dispatch(actUserSignup(body));
   };
@@ -41,8 +72,21 @@ export default function Signup() {
     setPhone("");
   };
 
+  // Проверка полей
   const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const isValidPassword = (password) => {
+    return password.length >= 8;
+  };
+
+  const isValidPhone = (phone) => {
+    return /^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/.test(phone); 
+  };
+
+  const isValidName = (name) => {
+    return /^[A-Za-zА-Яа-я]{3,}$/.test(name) && !/\d/.test(name) && !/[^A-Za-zА-Яа-я]/.test(name);
   };
 
   const checkEmail = (e) => {
@@ -52,6 +96,33 @@ export default function Signup() {
       outline: "none",
     });
     setEmail(e.target.value);
+  };
+
+  const checkPassword = (e) => {
+    const isValid = isValidPassword(e.target.value);
+    setPasswordStyle({
+      border: `2px solid ${isValid ? "green" : "red"}`,
+      outline: "none",
+    });
+    setPassword(e.target.value);
+  };
+
+  const checkPhone = (e) => {
+    const isValid = isValidPhone(e.target.value);
+    setPhoneStyle({
+      border: `2px solid ${isValid ? "green" : "red"}`,
+      outline: "none",
+    });
+    setPhone(e.target.value);
+  };
+
+  const checkName = (e) => {
+    const isValid = isValidName(e.target.value);
+    setNameStyle({
+      border: `2px solid ${isValid ? "green" : "red"}`,
+      outline: "none",
+    });
+    setName(e.target.value);
   };
 
   return (
@@ -75,6 +146,7 @@ export default function Signup() {
                 style={emailStyle}
                 value={email}
                 onChange={checkEmail}
+                placeholder="example@domain.com"
                 required
               />
             </div>
@@ -83,8 +155,10 @@ export default function Signup() {
               <input
                 className="login-input"
                 type="password"
+                style={passwordStyle}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={checkPassword}
+                placeholder="От 8 символов"
                 required
               />
             </div>
@@ -93,18 +167,22 @@ export default function Signup() {
               <input
                 className="login-input"
                 type="text"
+                style={nameStyle}
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={checkName}
+                placeholder="От 3 символов, только буквы"
                 required
               />
             </div>
             <div>
               <span className="input-span">Телефон</span>
-              <input
+              <InputMask
                 className="login-input"
-                type="text"
+                style={phoneStyle}
+                mask="+7(999)999-99-99"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={checkPhone}
+                placeholder="+7(___)___-__-__"
                 required
               />
             </div>
