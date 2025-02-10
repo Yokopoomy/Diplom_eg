@@ -31,6 +31,27 @@ export default function RoomsView() {
     navigate(`/hotels/view/${hotelState._id}`, { state: { item: hotelState } });
   };
 
+  // Обработчик изменения даты заезда
+  const handleDateStartChange = (e) => {
+    const newDateStart = e.target.value;
+    setDateStart(newDateStart);
+
+    // Если новая дата заезда позже текущей даты выезда, обновляем дату выезда
+    if (newDateStart > dateEnd) {
+      setDateEnd(newDateStart);
+    }
+  };
+
+  // Обработчик изменения даты выезда
+  const handleDateEndChange = (e) => {
+    const newDateEnd = e.target.value;
+
+    // Проверяем, что дата выезда не раньше даты заезда
+    if (newDateEnd >= dateStart) {
+      setDateEnd(newDateEnd);
+    }
+  };
+
   const fnRegisterRoom = () => {
     const newRegrooms = {
       userId: user._id,
@@ -95,13 +116,14 @@ export default function RoomsView() {
                 type="date"
                 className="findrooms date"
                 value={dateStart}
-                onChange={(e) => setDateStart(e.target.value)}
+                onChange={handleDateStartChange}
               />
               <input
                 type="date"
                 className="findrooms date"
                 value={dateEnd}
-                onChange={(e) => setDateEnd(e.target.value)}
+                min={dateStart} // Устанавливаем минимальную дату выезда равной дате заезда
+                onChange={handleDateEndChange}
               />
             </div>
             <div className="addhotel-btn">
