@@ -17,6 +17,11 @@ export default function RoomsView() {
   const hotelsPics = JSON.parse(images);
   const backendUrl = `${process.env.REACT_APP_BACK_URL}`;
 
+  // Функция для получения текущей даты в формате YYYY-MM-DD
+  const getCurrentDate = () => {
+    return new Date().toISOString().split("T")[0];
+  };
+
   const fnModalPics = (url) => {
     setIsModal(!isModal);
     setUrlForModal(url);
@@ -34,11 +39,16 @@ export default function RoomsView() {
   // Обработчик изменения даты заезда
   const handleDateStartChange = (e) => {
     const newDateStart = e.target.value;
-    setDateStart(newDateStart);
+							   
 
-    // Если новая дата заезда позже текущей даты выезда, обновляем дату выезда
-    if (newDateStart > dateEnd) {
-      setDateEnd(newDateStart);
+    // Проверяем, что новая дата заезда не раньше текущего дня
+    if (newDateStart >= getCurrentDate()) {
+      setDateStart(newDateStart);
+
+      // Если новая дата заезда позже текущей даты выезда, обновляем дату выезда
+      if (newDateStart > dateEnd) {
+        setDateEnd(newDateStart);
+      }
     }
   };
 
@@ -116,6 +126,7 @@ export default function RoomsView() {
                 type="date"
                 className="findrooms date"
                 value={dateStart}
+                min={getCurrentDate()} // Устанавливаем минимальную дату заезда равной текущему дню
                 onChange={handleDateStartChange}
               />
               <input
